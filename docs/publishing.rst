@@ -1,67 +1,41 @@
 Documentation maintenance and publishing
 ========================================
 
-The intended URL
-----------------
+The documentation URL
+---------------------
 
-The repository remote identifies the account as ``ZakyHamdoun``. The guide's
-configured address is:
+Documentation is deployed directly from ``ZakyHamdoun/java-order-book-matching``
+to its GitHub Pages project site:
 
-`https://zakyhamdoun.github.io/java/order-book-matching-engine/ <https://zakyhamdoun.github.io/java/order-book-matching-engine/>`_
+`https://zakyhamdoun.github.io/java-order-book-matching/ <https://zakyhamdoun.github.io/java-order-book-matching/>`_
 
-GitHub serves websites on ``github.io``; ``github.com/ZakyHamdoun`` is the
-account's repository/profile interface. A normal Pages deployment from
-``java-order-book-matching`` would include that repository name in its URL.
-To obtain the requested path directly under the account website, the
-workflow publishes into the **user-site repository**
-``ZakyHamdoun/ZakyHamdoun.github.io``. See GitHub's
+The repository name determines the default project-site path. The originally
+requested ``/java/order-book-matching-engine/`` path would require a separate
+user-site repository or other hosting configuration. This workflow uses the
+existing project repository. See GitHub's
 `site naming rules <https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages>`_.
-
-This repository contains the workflow and guide sources. A successful local
-build does not make the public address live: the hosting repository, publishing
-credential and Pages settings below must exist, and a workflow run must
-publish successfully.
 
 One-time hosting setup
 ----------------------
 
-1. Create ``ZakyHamdoun/ZakyHamdoun.github.io`` if it does not already exist.
-   Use a public repository for GitHub Free, or check that your plan supports
-   Pages for the selected visibility. Initialize it with a README so a
-   default branch exists.
-2. Create a ``gh-pages`` branch in that repository. It is the **static output
-   branch**: keep generated site files here, separate from any site sources.
-   If an existing website already uses a different publishing process,
-   integrate this output into that process before switching its Pages source.
-3. In the **user-site repository**, select **Settings → Pages → Build and
-   deployment → Source: Deploy from a branch**, then ``gh-pages`` and
-   ``/ (root)``. This workflow pushes static HTML to a branch; it does not
-   use the Actions artifact deployment mode in the source repository.
-4. Create a fine-grained personal access token owned by ``ZakyHamdoun``,
-   restricted to the user-site repository, with **Contents: Read and write**.
-   Store it as ``PAGES_DEPLOY_TOKEN`` in the source repository's Actions
-   secrets, or in its ``documentation`` environment. Do not commit the token.
-5. Ensure branch rules allow this publishing identity to push to the target
-   ``gh-pages`` branch. If desired, restrict the source repository's
-   ``documentation`` environment to ``main``.
-6. Commit and push the project and documentation changes to ``main``, or run
-   **Actions → Documentation → Run workflow** on ``main``. Inspect both this
-   workflow and the target repository's Pages build/deployment status.
+1. Open ``ZakyHamdoun/java-order-book-matching`` on GitHub.
+2. Select **Settings > Pages > Build and deployment > Source: GitHub Actions**.
+3. Commit and push the updated workflow and documentation to ``main``, or
+   select **Actions > Documentation > Run workflow** on ``main`` after the
+   updated workflow is on that branch.
+4. Check that the build and publish jobs succeed. The publish job's
+   ``github-pages`` environment links to the deployed site.
 
-The source repository's automatic ``GITHUB_TOKEN`` is limited to that
-repository; it cannot push this content into a different repository.
-Additionally, GitHub documents that pushes with ``GITHUB_TOKEN`` do not
-trigger branch-based Pages builds. The dedicated token addresses both
-requirements. See
+No separate repository, ``gh-pages`` branch or personal access token is
+required. Authentication uses the automatic ``GITHUB_TOKEN`` and a GitHub
+OIDC token. If you created ``PAGES_DEPLOY_TOKEN`` for the earlier workflow,
+you can remove that secret and revoke its personal access token if nothing
+else uses it.
+
+See GitHub's
 `publishing-source configuration <https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site>`_
-and `token permissions <https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication>`_.
-
-The workflow adds a root ``.nojekyll`` to serve the branch as static content,
-including Sphinx's ``_static`` directory. This applies to the entire target
-branch: that branch should contain ready-to-serve HTML rather than Jekyll
-sources. It preserves other directories and an existing root ``CNAME``;
-a custom domain configured there may change the final host, in which case
-update ``html_baseurl``, the workflow environment URL and the README link.
+and
+`custom workflow instructions <https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages>`_.
 
 Workflow behavior
 -----------------
@@ -71,18 +45,22 @@ Workflow behavior
 excerpts resolve, installs the Sphinx version from ``docs/requirements.txt``,
 and fails on documentation warnings. Source changes also trigger the build.
 
-Pull requests only build and upload an HTML artifact for review. Publishing
-requires a successful build, the original repository, and ``main``. The
-publishing job downloads that exact artifact and synchronizes only
-``java/order-book-matching-engine/`` in the target checkout; stale files
-inside that directory are removed. It commits only that path and the
-root ``.nojekyll`` marker, then pushes without force. If another writer
-advances the target branch concurrently, a rejected push should be retried
-by rerunning the workflow after checking the target history.
+The build job packages the HTML with ``actions/upload-pages-artifact``.
+Pull requests build and upload the artifact but never deploy. Publishing
+requires a successful build, the original repository, and ``main``.
+The publish job uses ``actions/configure-pages`` and ``actions/deploy-pages``
+to deploy that artifact directly, without pushing generated files to Git.
 
-Repeated identical output produces no new commit. Concurrency groups prevent
-overlapping documentation runs on the same source ref. The source workflow
-does not claim that the target Pages build has finished when its push completes.
+Only the publish job receives ``pages: write`` and ``id-token: write``
+permissions. The build job has read-only repository access. The
+``github-pages`` environment can restrict deployment to ``main``;
+concurrency groups prevent overlapping runs on the same source ref.
+
+Sphinx creates a ``.nojekyll`` marker, and the artifact includes its
+``_static`` assets. No Jekyll processing is needed. If you configure a
+custom domain in Pages settings, update ``html_baseurl`` and the README
+link accordingly. The workflow's environment URL comes from the deployment
+output.
 
 Editing this guide
 ------------------
@@ -124,10 +102,15 @@ Troubleshooting
   ``JAVA_HOME``, not just the IDE's project SDK.
 * **Sphinx cannot include Java files:** build from a complete checkout;
   copying only ``docs/`` omits the referenced source.
-* **Publishing credential missing or target branch not found:** complete the
-  one-time setup; do not change the URL to hide a failed deployment.
-* **404 after a successful push:** check Pages settings in the user-site
-  repository and wait for its deployment. The source workflow only pushes
-  the generated content.
-* **Styles or search assets missing:** confirm the root ``.nojekyll`` exists
-  and the ``_static`` directory was published with the HTML.
+* **Repository not found while fetching a separate hosting repository:**
+  the run is using the old workflow. Push the updated ``docs.yml`` to
+  ``main`` and start a new run; rerunning an old commit uses its old workflow.
+* **Pages configuration fails:** enable Pages with **GitHub Actions** as
+  the source in this repository's settings, and check that the repository's
+  visibility and account plan support Pages.
+* **Deployment is blocked:** check the ``github-pages`` environment's
+  branch restrictions and required approvals. The workflow deploys ``main``.
+* **404 at the site URL:** check that the publish job succeeded and use
+  the project URL above, including ``/java-order-book-matching/``.
+* **Styles or search assets missing:** confirm the ``_static`` directory
+  was included with the HTML in the Pages artifact.

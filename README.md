@@ -6,9 +6,9 @@ This is an **educational project**: its goal is to demonstrate a complete order 
 
 ## Documentation
 
-The [Sphinx interview guide](https://zakyhamdoun.github.io/java/order-book-matching-engine/) covers trading concepts, architecture, annotated algorithms, data structures, complexity derivations, FIFO versus Pro Rata, and implementation limits.
+The [Sphinx interview guide](https://zakyhamdoun.github.io/java-order-book-matching/) covers trading concepts, architecture, annotated algorithms, data structures, complexity derivations, FIFO versus Pro Rata, and implementation limits.
 
-The sources are in [docs/](docs/index.rst), with [local build instructions](docs/getting-started.rst) and [GitHub Pages setup](docs/publishing.rst). The public URL becomes available after the user-site repository and deployment secret are configured and the `Documentation` workflow publishes successfully.
+The sources are in [docs/](docs/index.rst), with [local build instructions](docs/getting-started.rst) and [GitHub Pages setup](docs/publishing.rst). In this repository's Settings → Pages, select **GitHub Actions** as the publishing source, then run the `Documentation` workflow. No personal access token or separate hosting repository is required.
 
 ## Features
 

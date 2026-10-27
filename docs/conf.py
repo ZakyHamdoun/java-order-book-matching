@@ -14,7 +14,7 @@ nitpicky = True
 
 html_theme = "alabaster"
 html_title = "Java Order Book & Matching Engine"
-html_baseurl = "https://zakyhamdoun.github.io/java/order-book-matching-engine/"
+html_baseurl = "https://zakyhamdoun.github.io/java-order-book-matching/"
 html_static_path = ["_static"]
 html_css_files = ["guide.css"]
 html_theme_options = {
