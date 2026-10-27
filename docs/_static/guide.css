@@ -1,0 +1,11 @@
+div.body { line-height: 1.65; }
+div.body h1, div.body h2, div.body h3 { line-height: 1.25; }
+div.highlight { border-left: 3px solid #286387; }
+div.highlight pre { font-size: 0.88em; line-height: 1.5; }
+table.docutils { width: 100%; }
+table.docutils td, table.docutils th { padding: 0.55em; }
+div.admonition { border-radius: 4px; }
+@media (max-width: 875px) {
+    div.body { padding: 0 20px 30px; }
+    div.body table { display: block; overflow-x: auto; }
+}
